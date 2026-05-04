@@ -24,7 +24,7 @@ _gemini = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 # ── Your watchlist ────────────────────────────────────────────────────────────
 # Stocks use plain symbols (NVDA, AAPL). Crypto appends -USD (BTC-USD, ETH-USD).
-TICKERS = ["NVDA"]
+TICKERS = ["NVDA", "AMZN", "PLTR", "MSFT", "PANW"]
 
 
 # ── Step 1: Price data ────────────────────────────────────────────────────────
