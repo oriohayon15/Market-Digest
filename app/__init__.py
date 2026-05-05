@@ -12,6 +12,10 @@ def create_app():
 
     with app.app_context():
         db.create_all()
-        print("Database tables created.")
+        print("Database tables ready.")
+
+    from app.bot.handlers import init_handlers
+    from app.bot import handlers as _handlers  # noqa — registers all handlers with the bot
+    init_handlers(app)
 
     return app
