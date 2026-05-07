@@ -15,12 +15,12 @@ import os
 import time
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
-from google import genai
+from openai import OpenAI
 import requests
 import yfinance as yf
 
 load_dotenv()
-_gemini = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+_openai = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # ── Your watchlist ────────────────────────────────────────────────────────────
 # Stocks use plain symbols (NVDA, AAPL). Crypto appends -USD (BTC-USD, ETH-USD).
@@ -135,7 +135,7 @@ def get_news(ticker: str, max_articles: int = 4) -> tuple[list[dict], bool]:
     return recent_articles[:max_articles], False
 
 
-# ── Step 3: Claude AI summary ─────────────────────────────────────────────────
+# ── Step 3: Gemini AI summary ─────────────────────────────────────────────────
 
 def get_ai_summary(ticker: str, price_data: dict, articles: list[dict], is_fresh: bool) -> str:
     """Ask Gemini to write a 2-3 sentence explanation of the day's move."""
@@ -172,13 +172,16 @@ def get_ai_summary(ticker: str, price_data: dict, articles: list[dict], is_fresh
 
     for attempt in range(4):
         try:
-            response = _gemini.models.generate_content(model="gemini-2.5-flash", contents=prompt)
-            return response.text
+            response = _openai.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[{"role": "user", "content": prompt}],
+            )
+            return response.choices[0].message.content
         except Exception as e:
             if attempt == 3:
                 raise
             wait = 15 * (2 ** attempt)  # 15s, 30s, 60s
-            print(f"  Gemini unavailable, retrying in {wait}s…")
+            print(f"  OpenAI unavailable, retrying in {wait}s…")
             time.sleep(wait)
 
 
