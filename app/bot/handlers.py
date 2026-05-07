@@ -76,3 +76,28 @@ def cmd_add(message):
     db.session.add(Portfolio(user_id=user.id, ticker_symbol=ticker))
     db.session.commit()
     bot.reply_to(message, f"{ticker} added to your portfolio.")
+
+
+@bot.message_handler(commands=["remove"])
+@_with_context
+def cmd_remove(message):
+    user = User.query.filter_by(telegram_id=message.from_user.id).first()
+    if not user:
+        bot.reply_to(message, "You're not registered yet. Send /start first.")
+        return
+
+    parts = message.text.strip().split()
+    if len(parts) < 2:
+        bot.reply_to(message, "Please provide a ticker. Example: /remove AAPL")
+        return
+
+    ticker = parts[1].upper()
+
+    entry = Portfolio.query.filter_by(user_id=user.id, ticker_symbol=ticker).first()
+    if not entry:
+        bot.reply_to(message, f"{ticker} is not in your portfolio.")
+        return
+
+    db.session.delete(entry)
+    db.session.commit()
+    bot.reply_to(message, f"{ticker} removed from your portfolio.")
