@@ -101,3 +101,20 @@ def cmd_remove(message):
     db.session.delete(entry)
     db.session.commit()
     bot.reply_to(message, f"{ticker} removed from your portfolio.")
+
+
+@bot.message_handler(commands=["portfolio"])
+@_with_context
+def cmd_portfolio(message):
+    user = User.query.filter_by(telegram_id=message.from_user.id).first()
+    if not user:
+        bot.reply_to(message, "You're not registered yet. Send /start first.")
+        return
+
+    tickers = Portfolio.query.filter_by(user_id=user.id).all()
+    if not tickers:
+        bot.reply_to(message, "Your portfolio is empty. Use /add AAPL to start tracking tickers.")
+        return
+
+    symbols = "\n".join(f"• {t.ticker_symbol}" for t in tickers)
+    bot.reply_to(message, f"Your portfolio:\n{symbols}")
