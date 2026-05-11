@@ -1,10 +1,14 @@
+from datetime import date
 from functools import wraps
 
 import yfinance as yf
 from flask import has_app_context
 
 from app.bot import bot
-from app.models import Portfolio, User, db
+from app.config import Config
+from app.models import Portfolio, SummaryLimit, User, db
+from app.services.ai import get_ai_summary
+from app.services.market import format_price_line, get_news, get_price_data
 
 _flask_app = None
 
@@ -118,3 +122,46 @@ def cmd_portfolio(message):
 
     symbols = "\n".join(f"• {t.ticker_symbol}" for t in tickers)
     bot.reply_to(message, f"Your portfolio:\n{symbols}")
+
+
+@bot.message_handler(commands=["summary"])
+@_with_context
+def cmd_summary(message):
+    user = User.query.filter_by(telegram_id=message.from_user.id).first()
+    if not user:
+        bot.reply_to(message, "You're not registered yet. Send /start first.")
+        return
+
+    tickers = Portfolio.query.filter_by(user_id=user.id).all()
+    if not tickers:
+        bot.reply_to(message, "Your portfolio is empty. Use /add AAPL to start tracking tickers.")
+        return
+
+    today = date.today()
+    limit_row = SummaryLimit.query.filter_by(user_id=user.id, date=today).first()
+    if limit_row and limit_row.count >= Config.SUMMARY_DAILY_LIMIT:
+        bot.reply_to(message, f"You've reached your {Config.SUMMARY_DAILY_LIMIT} on-demand summary limit for today. Your next digest arrives at 4pm EST.")
+        return
+
+    bot.reply_to(message, "Generating your portfolio digest... this may take a moment.")
+
+    blocks = []
+    for entry in tickers:
+        ticker = entry.ticker_symbol
+        try:
+            price_data = get_price_data(ticker)
+            articles, is_fresh = get_news(ticker)
+            summary = get_ai_summary(ticker, price_data, articles, is_fresh)
+            blocks.append(f"{format_price_line(price_data)}\n{summary}")
+        except Exception:
+            blocks.append(f"{ticker}: data unavailable at this time.")
+
+    if limit_row:
+        limit_row.count += 1
+    else:
+        db.session.add(SummaryLimit(user_id=user.id, date=today, count=1))
+    db.session.commit()
+
+    remaining = Config.SUMMARY_DAILY_LIMIT - (limit_row.count if limit_row else 1)
+    footer = f"\n\n({remaining} on-demand {'summary' if remaining == 1 else 'summaries'} left today)"
+    bot.reply_to(message, "📈 Market Digest\n\n" + "\n\n".join(blocks) + footer)

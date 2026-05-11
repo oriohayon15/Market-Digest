@@ -6,13 +6,14 @@ Fetches price data, news, and AI summaries for your watchlist — then texts the
 Build stages:
   Step 1 (done): Price data for one ticker
   Step 2 (done): News headlines
-  Step 3 (current): Claude AI summaries with full article text
-  Step 4: SMS delivery
+  Step 3 (done): OpenAI AI summaries with full article text
+  Step 4: (done) notification delivery
 """
 
 from datetime import datetime, timezone
 import os
 import time
+import traceback
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from openai import OpenAI
@@ -213,6 +214,7 @@ def main():
             lines.append(block)
         except Exception as e:
             print(f"{ticker}: error — {e}")
+            traceback.print_exc()
 
     if lines:
         send_notification("\n\n".join(lines))

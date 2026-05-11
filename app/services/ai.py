@@ -1,10 +1,10 @@
 import time
 
-from google import genai
+from openai import OpenAI
 
 from app.config import Config
 
-_gemini = genai.Client(api_key=Config.GEMINI_API_KEY)
+_openai = OpenAI(api_key=Config.OPENAI_API_KEY)
 
 
 def get_ai_summary(ticker: str, price_data: dict, articles: list[dict], is_fresh: bool) -> str:
@@ -39,10 +39,11 @@ def get_ai_summary(ticker: str, price_data: dict, articles: list[dict], is_fresh
 
     for attempt in range(4):
         try:
-            response = _gemini.models.generate_content(
-                model="gemini-2.5-flash", contents=prompt
+            response = _openai.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[{"role": "user", "content": prompt}],
             )
-            return response.text
+            return response.choices[0].message.content
         except Exception:
             if attempt == 3:
                 raise
