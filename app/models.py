@@ -15,6 +15,7 @@ class User(db.Model):
         default=lambda: datetime.now(timezone.utc),
         nullable=False,
     )
+    is_admin = db.Column(db.Boolean, default=False, nullable=False)
 
     portfolios = db.relationship(
         "Portfolio", backref="user", lazy=True, cascade="all, delete-orphan"

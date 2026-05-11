@@ -139,7 +139,7 @@ def cmd_summary(message):
 
     today = date.today()
     limit_row = SummaryLimit.query.filter_by(user_id=user.id, date=today).first()
-    if limit_row and limit_row.count >= Config.SUMMARY_DAILY_LIMIT:
+    if not user.is_admin and limit_row and limit_row.count >= Config.SUMMARY_DAILY_LIMIT:
         bot.reply_to(message, f"You've reached your {Config.SUMMARY_DAILY_LIMIT} on-demand summary limit for today. Your next digest arrives at 4pm EST.")
         return
 
@@ -162,6 +162,9 @@ def cmd_summary(message):
         db.session.add(SummaryLimit(user_id=user.id, date=today, count=1))
     db.session.commit()
 
-    remaining = Config.SUMMARY_DAILY_LIMIT - (limit_row.count if limit_row else 1)
-    footer = f"\n\n({remaining} on-demand {'summary' if remaining == 1 else 'summaries'} left today)"
+    if user.is_admin:
+        footer = ""
+    else:
+        remaining = Config.SUMMARY_DAILY_LIMIT - (limit_row.count if limit_row else 1)
+        footer = f"\n\n({remaining} on-demand {'summary' if remaining == 1 else 'summaries'} left today)"
     bot.reply_to(message, "📈 Market Digest\n\n" + "\n\n".join(blocks) + footer)
