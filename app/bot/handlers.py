@@ -29,6 +29,18 @@ def _with_context(f):
     return wrapper
 
 
+HELP_TEXT = (
+    "📈 *Market Digest*\n"
+    "Get a daily AI-powered summary of your stock portfolio, delivered every weekday at 4pm ET.\n\n"
+    "*Commands*\n"
+    "/add AAPL — add a ticker to your portfolio\n"
+    "/remove AAPL — remove a ticker from your portfolio\n"
+    "/portfolio — view all tickers you're tracking\n"
+    "/summary — get an on-demand digest right now\n"
+    "/help — show this message"
+)
+
+
 def _is_valid_ticker(symbol: str) -> bool:
     try:
         hist = yf.Ticker(symbol).history(period="5d")
@@ -48,9 +60,15 @@ def cmd_start(message):
         )
         db.session.add(user)
         db.session.commit()
-        bot.reply_to(message, "Welcome to Market Digest! You've been registered.")
+        bot.send_message(message.chat.id, "Welcome to Market Digest! You've been registered.\n\n" + HELP_TEXT, parse_mode="Markdown")
     else:
         bot.reply_to(message, "Welcome back! You're already registered.")
+
+
+@bot.message_handler(commands=["help"])
+@_with_context
+def cmd_help(message):
+    bot.send_message(message.chat.id, HELP_TEXT, parse_mode="Markdown")
 
 
 @bot.message_handler(commands=["add"])
