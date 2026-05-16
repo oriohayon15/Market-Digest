@@ -91,13 +91,24 @@ def cmd_add(message):
         bot.reply_to(message, f"{ticker} is already in your portfolio.")
         return
 
+    current_count = Portfolio.query.filter_by(user_id=user.id).count()
+    if not user.is_admin and current_count >= 10:
+        bot.reply_to(message, "You've reached the 10 ticker limit. Remove one with /remove before adding another.")
+        return
+
     if not _is_valid_ticker(ticker):
         bot.reply_to(message, f"'{ticker}' doesn't look like a valid ticker. Please double-check the symbol.")
         return
 
     db.session.add(Portfolio(user_id=user.id, ticker_symbol=ticker))
     db.session.commit()
-    bot.reply_to(message, f"{ticker} added to your portfolio.")
+
+    new_count = current_count + 1
+    if not user.is_admin and new_count >= 5:
+        remaining = 10 - new_count
+        bot.reply_to(message, f"{ticker} added to your portfolio.\n\nReminder: you can track a maximum of 10 stocks. You have {remaining} remaining.")
+    else:
+        bot.reply_to(message, f"{ticker} added to your portfolio.")
 
 
 @bot.message_handler(commands=["remove"])
