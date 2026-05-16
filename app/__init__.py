@@ -18,4 +18,7 @@ def create_app():
     from app.bot import handlers as _handlers  # noqa — registers all handlers with the bot
     init_handlers(app)
 
+    from app.scheduler import init_scheduler
+    init_scheduler(app)
+
     return app
