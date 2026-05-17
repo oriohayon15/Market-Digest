@@ -4,6 +4,15 @@ A Telegram bot that delivers AI-powered stock summaries straight to your phone e
 
 ---
 
+## Getting started
+
+1. Open Telegram and search for **@MarketDigestAIBot**, or use this direct link: [t.me/MarketDigestAIBot](https://t.me/MarketDigestAIBot)
+2. Send `/start` to register your account
+3. Add tickers with `/add AAPL` (or any stock/crypto symbol)
+4. You'll automatically receive a digest every weekday at 4pm ET — or call `/summary` anytime for an instant update
+
+---
+
 ## What it does
 
 Each weekday at **4pm ET**, every registered user receives a personalized digest for the tickers in their portfolio. Each entry shows:

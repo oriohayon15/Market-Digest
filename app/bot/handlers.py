@@ -37,7 +37,10 @@ HELP_TEXT = (
     "/remove AAPL — remove a ticker from your portfolio\n"
     "/portfolio — view all tickers you're tracking\n"
     "/summary — get an on-demand digest right now\n"
-    "/help — show this message"
+    "/help — show this message\n\n"
+    "*Limits*\n"
+    "• Max 10 stocks tracked at once\n"
+    "• Max 3 on-demand summaries per day"
 )
 
 
