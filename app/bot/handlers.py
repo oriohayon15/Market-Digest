@@ -34,12 +34,13 @@ HELP_TEXT = (
     "Get a daily AI-powered summary of your stock portfolio, delivered every weekday at 4pm ET.\n\n"
     "*Commands*\n"
     "/add AAPL — add a ticker to your portfolio\n"
+    "  Stocks: AAPL • Crypto: BTC-USD • Indexes: ^GSPC\n"
     "/remove AAPL — remove a ticker from your portfolio\n"
     "/portfolio — view all tickers you're tracking\n"
     "/summary — get an on-demand digest right now\n"
     "/help — show this message\n\n"
     "*Limits*\n"
-    "• Max 10 stocks tracked at once\n"
+    "• Max 8 stocks tracked at once\n"
     "• Max 3 on-demand summaries per day"
 )
 
@@ -95,8 +96,8 @@ def cmd_add(message):
         return
 
     current_count = Portfolio.query.filter_by(user_id=user.id).count()
-    if not user.is_admin and current_count >= 10:
-        bot.reply_to(message, "You've reached the 10 ticker limit. Remove one with /remove before adding another.")
+    if not user.is_admin and current_count >= 8:
+        bot.reply_to(message, "You've reached the 8 ticker limit. Remove one with /remove before adding another.")
         return
 
     if not _is_valid_ticker(ticker):
@@ -108,8 +109,8 @@ def cmd_add(message):
 
     new_count = current_count + 1
     if not user.is_admin and new_count >= 5:
-        remaining = 10 - new_count
-        bot.reply_to(message, f"{ticker} added to your portfolio.\n\nReminder: you can track a maximum of 10 stocks. You have {remaining} remaining.")
+        remaining = 8 - new_count
+        bot.reply_to(message, f"{ticker} added to your portfolio.\n\nReminder: you can track a maximum of 8 stocks. You have {remaining} remaining.")
     else:
         bot.reply_to(message, f"{ticker} added to your portfolio.")
 

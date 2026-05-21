@@ -37,7 +37,7 @@ Users can also call `/summary` at any time to get an on-demand digest without wa
 | `/summary` | Get a digest right now, on demand |
 | `/help` | Show all commands |
 
-Stocks use standard symbols (`NVDA`, `AAPL`). Crypto appends `-USD` (`BTC-USD`, `ETH-USD`).
+Stocks use standard symbols (`NVDA`, `AAPL`). Crypto appends `-USD` (`BTC-USD`, `ETH-USD`). Indexes use a `^` prefix (`^GSPC`, `^DJI`).
 
 ---
 
@@ -45,7 +45,7 @@ Stocks use standard symbols (`NVDA`, `AAPL`). Crypto appends `-USD` (`BTC-USD`, 
 
 | Limit | Value |
 |---|---|
-| Max tickers per user | 10 |
+| Max tickers per user | 8 |
 | On-demand `/summary` calls per day | 3 |
 | Automatic daily digest | Every weekday at 4pm ET |
 
