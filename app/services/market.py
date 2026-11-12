@@ -8,6 +8,8 @@ from bs4 import BeautifulSoup
 def get_price_data(ticker: str) -> dict:
     stock = yf.Ticker(ticker)
     hist = stock.history(period="5d")
+    hist = hist.dropna(subset=["Close"])
+
     if len(hist) < 2:
         raise ValueError(f"Not enough history for {ticker}")
     current_price = hist["Close"].iloc[-1]
